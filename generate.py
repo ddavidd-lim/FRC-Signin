@@ -1,5 +1,6 @@
 import csv
 import openpyxl
+from openpyxl.styles import PatternFill
 import os
 import datetime
 
@@ -13,47 +14,64 @@ workbook = openpyxl.Workbook()
 # Select the active sheet
 sheet = workbook.active
 sheet.title = "Week 1"
-sheet = workbook["Week 1"]
 
-def merge_cells_in_sheet(sheet_name, start_cell, end_cell):
-    # Select the desired sheet
-    sheet = workbook[sheet_name]
+year = 2023
+month = 7
+day = 18
 
-    # Merge the cells
-    sheet.merge_cells(f"{start_cell}:{end_cell}")
+start_date = datetime.datetime(year, month, day)
+inc_delta = datetime.timedelta(days=1)
+week_delta = datetime.timedelta(days=7)
 
-# Data for the main column (3 cells wide)
-main_column_data = [
-    "Tuesday", "","", "",  # Two empty cells for Tuesday
-    "Wednesday", "","", "", # Two empty cells for Wednesday
-    "Thursday", "","","",   # Two empty cells for Thursday
-    "Friday", "","", "",    # Two empty cells for Friday
-    "Saturday", "","", "", # Two empty cells for Saturday
-]
+
+headers = []    #"Tuesday", "","", "", 
+                #"Wednesday", "","", "",
+                #"Thursday", "","","",  
+                #"Friday", "","", "",   
+                #"Saturday", "","", "", 
+
+for i in range(5):
+    headers.append(start_date.strftime("%A, %B %d, %Y"))
+    start_date += inc_delta
 
 # Data for the 3 columns beneath each cell of the main column
-sub_column_data = ["Arrival Time", "Name", "# in Party", "Reason","Arrival Time", "Name", "# in Party", "Reason","Arrival Time", "Name", "# in Party", "Reason","Arrival Time", "Name", "# in Party", "Reason","Arrival Time", "Name", "# in Party", "Reason"]
+sub_column_data = ["Arrival", "Name", "# in Party", "Reason",
+                   "Arrival", "Name", "# in Party", "Reason",
+                   "Arrival", "Name", "# in Party", "Reason",
+                   "Arrival", "Name", "# in Party", "Reason",
+                   "Arrival", "Name", "# in Party", "Reason"]
 
-# Write main column data
-for col_idx, data in enumerate(main_column_data, start=1):
-    sheet.cell(row=1, column=col_idx, value=data)
+# Write headers
+column = 1
+header_num = 0
+# Fill in color for each column
+for i in range(5):
+    sheet.cell(row=1, column=column, value=headers[header_num]).fill = PatternFill(start_color='2273D1'
+                                                                                   , end_color='2273D1', fill_type='solid')
+    column += 4
+    header_num += 1
 
 start_cell = "A1"
 end_cell = "D1"
 
 
-
+# Merge Day columns
 for i in range(5):
-        merge_cells_in_sheet("Week 1", start_cell, end_cell)
+        sheet.merge_cells(f"{start_cell}:{end_cell}")
         start_cell = chr(ord(start_cell[0])+4) + "1"
         end_cell = chr(ord(end_cell[0])+4) + "1"
 
 sheet.append(sub_column_data)
 
-        
+# Set width of name columns
+sheet.column_dimensions['B'].width = 22
+sheet.column_dimensions['F'].width = 22
+sheet.column_dimensions['J'].width = 22
+sheet.column_dimensions['N'].width = 22
+sheet.column_dimensions['R'].width = 22
 
 cd = os.getcwd()
-filename = "output.xlsx"
+filename = "Fall2024.xlsx"
 file_path = os.path.join(cd, filename)
 
 workbook.save(file_path)
