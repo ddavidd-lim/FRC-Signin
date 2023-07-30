@@ -16,7 +16,7 @@ sheet.title = "Week 1"
 inc_delta = datetime.timedelta(days=1)
 week_delta = datetime.timedelta(days=7)
 
-def writeDayHeaders(start_date):
+def writeDayHeaders(start_date, sheet):
     headers = []
     # store dates from start time
     for i in range(5):
@@ -48,7 +48,7 @@ def writeDayHeaders(start_date):
     sheet.column_dimensions['N'].width = 22
     sheet.column_dimensions['R'].width = 22
 
-def writeSubheaders():
+def writeSubheaders(sheet):
     sub_column_data = ["Arrival", "Name", "# in Party", "Reason",
                    "Arrival", "Name", "# in Party", "Reason",
                    "Arrival", "Name", "# in Party", "Reason",
@@ -70,19 +70,31 @@ if __name__ == "__main__":
     # 7/25/2023
     while True:
         try:
-            year = int(input(">>Enter Year: "))
-            month = int(input(">>Enter Month: "))
-            day = int(input(">>Enter a Tuesday: "))
+            year = 2023
+            month = 6
+            day = 27
+            
+            # year = int(input(">>Enter Year: "))
+            # month = int(input(">>Enter Month: "))
+            # day = int(input(">>Enter a Tuesday: "))
 
             start_date = datetime.datetime(year, month, day)
             break
         except ValueError as v:
             print("!! Invalid input")
     
-    writeDayHeaders(start_date)
-    writeSubheaders()
+    writeDayHeaders(start_date, sheet)
+    writeSubheaders(sheet)
+    start_date += week_delta
+    for week_num in range(2, 11):
+        sheet_name = f"Week {week_num}"
+        new_sheet = workbook.create_sheet(title=sheet_name)
+        writeDayHeaders(start_date, new_sheet)
+        writeSubheaders(new_sheet)
+        start_date += week_delta
     
-    filename = input(">>Enter the name of your file: ")
+    filename = "test"
+    # filename = input(">>Enter the name of your file: ")
     filename += ".xlsx"
     
     if saveWorkbook(filename) != 1:
