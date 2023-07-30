@@ -1,6 +1,6 @@
-import csv
 import openpyxl
 from openpyxl.styles import PatternFill
+from openpyxl.styles import Font
 import os
 import datetime
 
@@ -16,6 +16,9 @@ sheet.title = "Week 1"
 inc_delta = datetime.timedelta(days=1)
 week_delta = datetime.timedelta(days=7)
 
+colorList = ["4577C7", "CF7977", "A2D88C", "B1A0C7", "FABF8F"]
+            #  blue     red       green    purple      orange
+
 def writeDayHeaders(start_date, sheet):
     headers = []
     # store dates from start time
@@ -27,8 +30,9 @@ def writeDayHeaders(start_date, sheet):
     header_num = 0
     # Fill in color for each column
     for i in range(5):
-        sheet.cell(row=1, column=column, value=headers[header_num]).fill = PatternFill(start_color='2273D1'
-                                                                                    , end_color='2273D1', fill_type='solid')
+        sheet.cell(row=1, column=column, value=headers[header_num]).fill = PatternFill(start_color=colorList[i]
+                                                                                    , end_color=colorList[i], fill_type='solid')
+        sheet.cell(row=1, column=column).font = Font(bold=True)
         column += 4
         header_num += 1
     start_cell = "A1"
@@ -56,6 +60,12 @@ def writeSubheaders(sheet):
                    "Arrival", "Name", "# in Party", "Reason"]
 
     sheet.append(sub_column_data)
+    
+def colorSubheaders(sheet):
+    for cell in sheet[2]:
+        cell.fill = PatternFill(start_color='FEE198'
+                                , end_color='FEE198', fill_type='solid')
+        cell.font = Font(bold=True)
 
 def saveWorkbook(filename):
     cd = os.getcwd()
@@ -85,12 +95,14 @@ if __name__ == "__main__":
     
     writeDayHeaders(start_date, sheet)
     writeSubheaders(sheet)
+    colorSubheaders(sheet)
     start_date += week_delta
     for week_num in range(2, 11):
         sheet_name = f"Week {week_num}"
         new_sheet = workbook.create_sheet(title=sheet_name)
         writeDayHeaders(start_date, new_sheet)
         writeSubheaders(new_sheet)
+        colorSubheaders(new_sheet)
         start_date += week_delta
     
     filename = "test"
