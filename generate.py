@@ -77,7 +77,7 @@ def saveWorkbook():
         
 def update_label_selected_date(event):
     selected_date = cal.get_date()
-    selected_date_label.config(text=f"Selected Date: {selected_date}")
+    selected_date_label.config(text=f"Selected Date: {selected_date}", fg="black")
 
 def is_tuesday(date):
     d_date = datetime.datetime.strptime(date, "%m/%d/%y")
