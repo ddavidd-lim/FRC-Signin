@@ -3,6 +3,9 @@ from openpyxl.styles import PatternFill
 from openpyxl.styles import Font
 import os
 import datetime
+import tkinter as tk
+from tkcalendar import Calendar
+from tkinter.filedialog import askopenfilename, asksaveasfilename
 
 
 
@@ -67,31 +70,27 @@ def colorSubheaders(sheet):
                                 , end_color='FEE198', fill_type='solid')
         cell.font = Font(bold=True)
 
-def saveWorkbook(filename):
-    cd = os.getcwd()
-    filename = filename
-    file_path = os.path.join(cd, filename)
+def saveWorkbook():
+    file_path = asksaveasfilename(defaultextension=".xlsx", filetypes=[("Excel files", "*.xlsx")])
+    if file_path:
+        workbook.save(file_path)
+        
+def update_label_selected_date(event):
+    selected_date = cal.get_date()
+    selected_date_label.config(text=f"Selected Date: {selected_date}")
 
-    workbook.save(file_path)
-    return 1
+def is_tuesday(date):
+    d_date = datetime.datetime.strptime(date, "%m/%d/%y")
+    return d_date.weekday() == 1
 
-if __name__ == "__main__":
-    # Date inputs
-    # 7/25/2023
-    while True:
-        try:
-            year = 2023
-            month = 6
-            day = 27
-            
-            # year = int(input(">>Enter Year: "))
-            # month = int(input(">>Enter Month: "))
-            # day = int(input(">>Enter a Tuesday: "))
-
-            start_date = datetime.datetime(year, month, day)
-            break
-        except ValueError as v:
-            print("!! Invalid input")
+def generate_sheet():
+    selected_date = cal.get_date()
+    if is_tuesday(selected_date) != 1:
+        selected_date_label.config(text=f"Selected Date: {selected_date} is not a Tuesday", fg="red")
+        return
+    
+    
+    start_date = datetime.datetime.strptime(selected_date, "%m/%d/%y")
     
     writeDayHeaders(start_date, sheet)
     writeSubheaders(sheet)
@@ -104,13 +103,58 @@ if __name__ == "__main__":
         writeSubheaders(new_sheet)
         colorSubheaders(new_sheet)
         start_date += week_delta
+    saveWorkbook()
     
-    filename = "test"
-    # filename = input(">>Enter the name of your file: ")
-    filename += ".xlsx"
-    
-    if saveWorkbook(filename) != 1:
-        print(">>Failed to save file")
-        exit()
-    print(">>Success")
 
+if __name__ == "__main__":
+    window = tk.Tk()
+    window.title("FRC Spreadsheet Generator")
+
+
+    # Top blue bar
+    frame1 = tk.Frame(master=window, height=20, bg="#08538c")
+
+    uciLogo = tk.PhotoImage(file="UCILogo.png")
+    lbl_logo = tk.Label(master=frame1,width=250, height=60, image=uciLogo, background="#08538c")
+    lbl_logo.grid(row=0, column=0)
+
+    tk.Label(master=frame1, text="FRC SPREADSHEET GENERATOR", fg="white", bg="#08538c", font=("Arial", 16, "bold")).grid(row=0, column=1, padx= 10)
+    frame1.pack(fill=tk.X)
+
+
+    # Calendar
+    frame2 = tk.Frame(master=window, pady=5)
+    
+    # left side of grid
+    cal = Calendar(master=frame2, selectmode="day", showweeknumbers=False)
+    cal.grid(row=0, column=0, padx=20, pady=10)
+    cal.bind("<<CalendarSelected>>", update_label_selected_date)
+
+    selected_date_label = tk.Label(master=frame2, text="Selected Date: ")
+    selected_date_label.grid(row=1, column=0, pady=5)
+    
+    # right side of grid
+    generate_frame = tk.Frame(master=frame2)
+    generate_frame.grid(row=0, column=1, rowspan=2, sticky="nsew")
+    
+    
+    readme = tk.Label(master=generate_frame, text="            Instructions            ", font=("Arial", 16, "bold"), bg="#AAACAD")
+    readme.pack(pady=5, padx=20)
+    
+    bullet_points = "1. Select a Tuesday on the Calendar\n2. Click Generate Spreadsheet\n3. Choose where to save file\n4. Open the excel file using google sheets"
+    lbl_instr = tk.Label(master=generate_frame, 
+                         text=bullet_points, justify="left")
+    lbl_instr.pack()
+    
+    btn_gen = tk.Button(master=generate_frame, text="Generate Spreadsheet", command=generate_sheet)
+    btn_gen.pack(side="bottom", pady=20, padx=20)
+
+    
+    # Configure grid_rowconfigure and grid_columnconfigure to make generate_frame expand
+    frame2.grid_rowconfigure(0, weight=1)
+    frame2.grid_rowconfigure(1, weight=1)
+    frame2.grid_columnconfigure(1, weight=1)
+        
+    frame2.pack(fill=tk.X)
+
+    window.mainloop()
