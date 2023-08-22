@@ -2,12 +2,18 @@ import openpyxl
 from openpyxl.styles import PatternFill
 from openpyxl.styles import Font
 import os
+import sys
 import datetime
 import tkinter as tk
 from tkcalendar import Calendar
 from tkinter.filedialog import askopenfilename, asksaveasfilename
+import babel.numbers
 
-
+def resource_path(relative_path):
+    absolute_path = os.path.abspath(__file__)
+    root_path = os.path.dirname(absolute_path)
+    base_path = getattr(sys, '_MEIPASS', root_path)
+    return os.path.join(base_path, relative_path)
 
 #first row has 5 dates, tues-sat
 #second row is under first row
@@ -113,8 +119,7 @@ if __name__ == "__main__":
 
     # Top blue bar
     frame1 = tk.Frame(master=window, height=20, bg="#08538c")
-
-    uciLogo = tk.PhotoImage(file="UCILogo.png")
+    uciLogo = tk.PhotoImage(file=resource_path("UCILogo.png"))
     lbl_logo = tk.Label(master=frame1,width=250, height=60, image=uciLogo, background="#08538c")
     lbl_logo.grid(row=0, column=0)
 
